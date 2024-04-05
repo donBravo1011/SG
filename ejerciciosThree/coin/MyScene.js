@@ -1,4 +1,4 @@
- 
+
 // Clases de la biblioteca
 // import * as THREE from "three"
 
@@ -8,7 +8,7 @@ import { TrackballControls } from '../libs/TrackballControls.js'
 
 // Clases de mi proyecto
 
-import { Seta } from './Seta.js'
+import { Coin } from './Coin.js'
 
  
 /// La clase fachada del modelo
@@ -49,7 +49,7 @@ class MyScene extends THREE.Scene {
     // Por último creamos el modelo.
     // El modelo puede incluir su parte de la interfaz gráfica de usuario. Le pasamos la referencia a 
     // la gui y el texto bajo el que se agruparán los controles de la interfaz que añada el modelo.
-    this.model = new Seta(this.gui, "Controles");
+    this.model = new Coin(this.gui, "Controles");
     this.add (this.model);
   }
   
@@ -149,11 +149,7 @@ class MyScene extends THREE.Scene {
     this.pointLight = new THREE.SpotLight( 0xffffff );
     this.pointLight.power = this.guiControls.lightPower;
     this.pointLight.position.set( 2, 3, 1 );
-    this.pointLight2 = new THREE.SpotLight( 0xffffff );
-    this.pointLight2.power = this.guiControls.lightPower;
-    this.pointLight2.position.set( 2, -3, 1 );
     this.add (this.pointLight);
-    this.add (this.pointLight2);
   }
   
   setLightPower (valor) {

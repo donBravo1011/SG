@@ -1,6 +1,6 @@
 
 import * as THREE from 'three'
-
+ 
 class Seta extends THREE.Object3D {
   constructor(gui,titleGui) {
     super();
@@ -11,9 +11,11 @@ class Seta extends THREE.Object3D {
     
     // El material se usa desde varios métodos. Por eso se alamacena en un atributo
     this.material = new THREE.MeshStandardMaterial({color: 0xffff00});
+    this.material2 = new THREE.MeshStandardMaterial({color: 0xff8000,side: THREE.DoubleSide});
+    
     
     // A la base no se accede desde ningún método. Se almacena en una variable local del constructor
-    var tamano = 0.15;   // 15 cm de largo. Las unidades son metros
+    var tamano = 0.5;   // 15 cm de largo. Las unidades son metros
     var base = this.createBase(tamano);
     
     
@@ -23,12 +25,35 @@ class Seta extends THREE.Object3D {
   
   createBase(tama) {
 
-    var coin = new THREE.Mesh (new THREE.CylinderGeometry (0.5,0.5,0.1,25), this.material);
+    
+    
+    //-----------------------------Inicio Perfil----------------------------------------------
 
-    // El nodo del que van a colgar la caja y los 2 conos y que se va a devolver
+    const shape = new THREE.Shape();
+
+    const radius = 1; // Radio de la circunferencia
+
+    // Punto inicial
+    shape.moveTo(0, -0.5);
+
+    // Punto de control y punto final para la curva cuadrática
+    const controlPoint = new THREE.Vector2(radius, radius);
+    const endPoint = new THREE.Vector2(0, radius);
+
+    shape.quadraticCurveTo(0.25, -0.5,0.5 ,0.0);
+    shape.quadraticCurveTo(radius,-0.25,radius ,0);
+    shape.quadraticCurveTo(controlPoint.x,controlPoint.y,endPoint.x,endPoint.y);
+
+    var points=shape.extractPoints (6).shape;
+
+
+    //-----------------------------Fin de perfil------------------------------------------------
+    const geometry = new THREE.LatheGeometry( points );
+    geometry.scale(tama,tama,tama);
+    const material = new THREE.MeshStandardMaterial( { color:  0xFF0000, side: THREE.DoubleSide} );
+    const lathe = new THREE.Mesh( geometry, material );
     var base = new THREE.Object3D();
-    coin.rotation.z = Math.PI/2;  
-    base.add(coin);
+    base.add( lathe );
 
     return base;
   }
@@ -48,21 +73,7 @@ class Seta extends THREE.Object3D {
       .onChange ( (value) => this.setAngulo (-value) );
   }
   
-  createMovil (tama) {
-    // Se crea la parte móvil
-    var cajaMovil = new THREE.Mesh (
-        new THREE.BoxGeometry (tama, tama*0.12, tama*0.2),
-        this.material
-    );
-    cajaMovil.position.set (-tama*0.45, tama*0.06, 0);
-    
-    var movil = new THREE.Object3D();
-    // IMPORTANTE: Con independencia del orden en el que se escriban las 2 líneas siguientes, SIEMPRE se aplica primero la rotación y después la traslación. Prueba a intercambiar las dos líneas siguientes y verás que no se produce ningún cambio al ejecutar.    
-    movil.rotation.z = this.guiControls.rotacion;
-    movil.position.set(tama*0.45,tama*0.2,0);
-    movil.add(cajaMovil);
-    return movil;
-  }
+  
   
   setAngulo (valor) {
     this.movil.rotation.z = valor;
