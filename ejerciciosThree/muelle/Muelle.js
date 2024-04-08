@@ -24,14 +24,38 @@ class Muelle extends THREE.Object3D {
   }
    
   createBase(tama) {
+      var base = new THREE.Object3D();
+      var points = []; // Puntos de control para la trayectoria del muelle
+  
+      // Genera los puntos de control a lo largo de una curva para el muelle
+      for (var i = 0; i < 10; i++) {
+        var x = 0; // Posición en el eje X
+        var y = i * 0.2; // Posición en el eje Y (ascendente)
+        var z = Math.sin(y * 10) * 0.4; // Posición en el eje Z (giratoria)
 
-    var baseMuelle = new THREE.Mesh (new THREE.CylinderGeometry(0.501, 0.501, 0.2, 25,1,true, 0, 2*Math.PI), this.material2);
-    
-    
-    var base = new THREE.Object3D();
-    base.add(  );
+        points.push(new THREE.Vector3(x, y, z));
+      }
+  
+      // Vamos a usar BARRIDO
+      var curve = new THREE.CatmullRomCurve3(points);
 
-    return base;
+      var shape = new THREE.Shape();
+      shape.moveTo(0, 0); // Mueve el punto inicial a la posición (0, 0)
+      shape.absarc(0, 0, 0.1, 0, Math.PI * 2, false); // Crea un arco completo con radio 0.1
+
+      var options = { steps: 500, curveSegments: 4, extrudePath: curve };
+      var geometry = new THREE.ExtrudeGeometry(shape, options);
+
+      
+      var material = new THREE.MeshPhongMaterial({ color: 0x808080,side: THREE.DoubleSide }); // Puedes ajustar el color según tu preferencia
+  
+      // Crea la malla del muelle usando la geometría y el material
+      var muelle = new THREE.Mesh(geometry, material);
+  
+      
+      base.add(muelle);
+  
+      return base;
   }
   
   createGUI (gui,titleGui) {

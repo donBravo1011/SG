@@ -148,8 +148,12 @@ class MyScene extends THREE.Scene {
     // En este caso se declara como   this.atributo   para que sea un atributo accesible desde otros métodos.
     this.pointLight = new THREE.SpotLight( 0xffffff );
     this.pointLight.power = this.guiControls.lightPower;
-    this.pointLight.position.set( 2, 3, 1 );
+    this.pointLight.position.set( 2, 2, 1 );
+    this.pointLight2 = new THREE.SpotLight( 0xffffff );
+    this.pointLight2.power = this.guiControls.lightPower;
+    this.pointLight2.position.set( -2, 2, 1 );
     this.add (this.pointLight);
+    this.add (this.pointLight2);
   }
   
   setLightPower (valor) {

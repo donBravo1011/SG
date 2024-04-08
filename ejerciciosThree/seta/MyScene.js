@@ -152,8 +152,12 @@ class MyScene extends THREE.Scene {
     this.pointLight2 = new THREE.SpotLight( 0xffffff );
     this.pointLight2.power = this.guiControls.lightPower;
     this.pointLight2.position.set( 2, -3, 1 );
+    this.pointLight3 = new THREE.SpotLight( 0xffffff );
+    this.pointLight3.power = this.guiControls.lightPower;
+    this.pointLight3.position.set( -2, 0, 0 );
     this.add (this.pointLight);
     this.add (this.pointLight2);
+    this.add (this.pointLight3);
   }
   
   setLightPower (valor) {

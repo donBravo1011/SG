@@ -1,7 +1,8 @@
 
 import * as THREE from 'three'
+import { CSG } from '../libs/CSG-v2.js'
  
-class Seta extends THREE.Object3D {
+class Alas extends THREE.Object3D {
   constructor(gui,titleGui) {
     super();
     
@@ -10,9 +11,9 @@ class Seta extends THREE.Object3D {
     this.createGUI(gui,titleGui);
     
     // El material se usa desde varios métodos. Por eso se alamacena en un atributo
-    this.material = new THREE.MeshStandardMaterial({color: 0xffff00});
-    this.material2 = new THREE.MeshStandardMaterial({color: 0xff8000,side: THREE.DoubleSide});
-    
+    this.material = new THREE.MeshStandardMaterial({color: 0x0000ff,side: THREE.DoubleSide});
+    this.material2 = new THREE.MeshStandardMaterial({color: 0x9b9b9b,side: THREE.DoubleSide});
+    this.material3 = new THREE.MeshStandardMaterial({color: 0xff0080,side: THREE.DoubleSide});
     
     // A la base no se accede desde ningún método. Se almacena en una variable local del constructor
     var tamano = 0.5;   // 15 cm de largo. Las unidades son metros
@@ -24,36 +25,38 @@ class Seta extends THREE.Object3D {
   }
   
   createBase(tama) {
-
-    
-    
     //-----------------------------Inicio Perfil----------------------------------------------
-
     const shape = new THREE.Shape();
 
-    const radius = 1; // Radio de la circunferencia
+    // Definir el perfil del ala
+    shape.moveTo(0, 1);
+    shape.quadraticCurveTo(1, 1.5, 0.2, 0.8);
+    shape.quadraticCurveTo(0.9, 1.2, 0.2, 0.6);
+    shape.quadraticCurveTo(0.8, 0.8, 0.2, 0.4);
+    shape.quadraticCurveTo(0.6, 0.6, 0, 0.1);
+    shape.lineTo(0, 0.1); // Asegúrate de cerrar el perfil
 
-    // Punto inicial
-    shape.moveTo(0.0001, -0.5);
+    // Crear geometría de extrusión a partir del perfil
+    const extrudeSettings = {
+        depth: 0.1, // Profundidad de la extrusión
+        bevelEnabled: false // Sin biseles
+    };
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    geometry.scale(tama, tama, tama); // Escalar la geometría según el parámetro 'tama'
 
-    // Punto de control y punto final para la curva cuadrática
-    const controlPoint = new THREE.Vector2(radius, radius);
-    const endPoint = new THREE.Vector2(0.0001, radius);
+    // Crear material y malla
+    
+    const ala1 = new THREE.Mesh(geometry, this.material);
+    var ala2 = ala1.clone();
+    ala1.rotation.y = -(Math.PI / 2);
+    ala2.rotation.y = Math.PI  / 2;
 
-    shape.quadraticCurveTo(0.25, -0.5,0.5 ,0.0);
-    shape.quadraticCurveTo(radius,-0.25,radius ,0);
-    shape.quadraticCurveTo(controlPoint.x,controlPoint.y,endPoint.x,endPoint.y);
-
-    var points=shape.extractPoints (6).shape;
-
-
-    //-----------------------------Fin de perfil------------------------------------------------
-    const geometry = new THREE.LatheGeometry( points );
-    geometry.scale(tama,tama,tama);
-    const material = new THREE.MeshStandardMaterial( { color:  0xFF0000, side: THREE.DoubleSide} );
-    const lathe = new THREE.Mesh( geometry, material );
-    var base = new THREE.Object3D();
-    base.add( lathe );
+    ala1.position.set(0, 0, 0.1);
+    ala2.position.set(0, 0, -0.1);
+    // Crear un objeto contenedor y agregar la malla
+    const base = new THREE.Object3D();
+    base.add(ala1);
+    base.add(ala2);
 
     return base;
   }
@@ -84,4 +87,4 @@ class Seta extends THREE.Object3D {
   }
 }
 
-export { Seta }
+export { Alas }

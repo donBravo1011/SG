@@ -1,7 +1,7 @@
 
 import * as THREE from 'three'
  
-class Seta extends THREE.Object3D {
+class Muelle extends THREE.Object3D {
   constructor(gui,titleGui) {
     super();
     
@@ -22,40 +22,37 @@ class Seta extends THREE.Object3D {
     // Al nodo  this, la grapadora, se le cuelgan como hijos la base y la parte móvil
     this.add (base);
   }
-  
+   
   createBase(tama) {
+      var base = new THREE.Object3D();
+      var points = []; // Puntos de control para la trayectoria del muelle
+  
+      // Genera los puntos de control a lo largo de una curva para el muelle
+      for (var i = 0; i < 10; i++) {
+        var x = 0; // Posición en el eje X
+        var y = i * 0.2; // Posición en el eje Y (ascendente)
+        var z = Math.sin(y * 10) * 0.4; // Posición en el eje Z (giratoria)
 
-    
-    
-    //-----------------------------Inicio Perfil----------------------------------------------
-
-    const shape = new THREE.Shape();
-
-    const radius = 1; // Radio de la circunferencia
-
-    // Punto inicial
-    shape.moveTo(0.0001, -0.5);
-
-    // Punto de control y punto final para la curva cuadrática
-    const controlPoint = new THREE.Vector2(radius, radius);
-    const endPoint = new THREE.Vector2(0.0001, radius);
-
-    shape.quadraticCurveTo(0.25, -0.5,0.5 ,0.0);
-    shape.quadraticCurveTo(radius,-0.25,radius ,0);
-    shape.quadraticCurveTo(controlPoint.x,controlPoint.y,endPoint.x,endPoint.y);
-
-    var points=shape.extractPoints (6).shape;
-
-
-    //-----------------------------Fin de perfil------------------------------------------------
-    const geometry = new THREE.LatheGeometry( points );
-    geometry.scale(tama,tama,tama);
-    const material = new THREE.MeshStandardMaterial( { color:  0xFF0000, side: THREE.DoubleSide} );
-    const lathe = new THREE.Mesh( geometry, material );
-    var base = new THREE.Object3D();
-    base.add( lathe );
-
-    return base;
+        points.push(new THREE.Vector3(x, y, z));
+    }
+  
+      // Define la curva de la trayectoria del muelle
+      var curve = new THREE.CatmullRomCurve3(points);
+  
+      // Crea la geometría del muelle usando la forma de barrido a lo largo de la curva
+      var geometry = new THREE.TubeGeometry(curve, 100, 0.1, 8, false);
+  
+      // Crea el material para el muelle (puedes usar el mismo material que para la base)
+      var material = new THREE.MeshPhongMaterial({ color: 0x808080,side: THREE.DoubleSide }); // Puedes ajustar el color según tu preferencia
+  
+      // Crea la malla del muelle usando la geometría y el material
+      var muelle = new THREE.Mesh(geometry, material);
+  
+      // Crea un objeto 3D para el muelle
+      var muelleObj = new THREE.Object3D();
+      base.add(muelle);
+  
+      return base;
   }
   
   createGUI (gui,titleGui) {
@@ -84,4 +81,4 @@ class Seta extends THREE.Object3D {
   }
 }
 
-export { Seta }
+export { Muelle }
