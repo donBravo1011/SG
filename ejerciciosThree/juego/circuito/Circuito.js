@@ -3,12 +3,10 @@ import * as THREE from 'three'
 import { CSG } from '../libs/CSG-v2.js'
  
 class Circuito extends THREE.Object3D {
-  constructor(gui,titleGui) {
+  constructor() {
     super();
     
-    // Se crea la parte de la interfaz que corresponde a la grapadora
-    // Se crea primero porque otros métodos usan las variables que se definen para la interfaz
-    this.createGUI(gui,titleGui);
+    
     
     // El material se usa desde varios métodos. Por eso se alamacena en un atributo
     this.material = new THREE.MeshStandardMaterial({color: 0x0000ff,side: THREE.DoubleSide});
@@ -69,26 +67,8 @@ class Circuito extends THREE.Object3D {
     return this.tubeGeometry;
   }
   
-  createGUI (gui,titleGui) {
-    // Controles para el movimiento de la parte móvil
-    this.guiControls = {
-      rotacion : 0
-    } 
-    
-    // Se crea una sección para los controles de la caja
-    var folder = gui.addFolder (titleGui);
-    // Estas lineas son las que añaden los componentes de la interfaz
-    // Las tres cifras indican un valor mínimo, un máximo y el incremento
-    folder.add (this.guiControls, 'rotacion', -0.125, 0.2, 0.001)
-      .name ('Apertura : ')
-      .onChange ( (value) => this.setAngulo (-value) );
-  }
-  
-  
-  
-  setAngulo (valor) {
-    this.movil.rotation.z = valor;
-  }
+ 
+
   
   update () {
     // No hay nada que actualizar ya que la apertura de la grapadora se ha actualizado desde la interfaz

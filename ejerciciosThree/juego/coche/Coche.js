@@ -4,12 +4,12 @@ import { OBJLoader } from '../libs/OBJLoader.js';
 import { Circuito } from '../circuito/Circuito.js';
 
 class Coche extends THREE.Object3D {
-  constructor(gui, titleGui) {
+  constructor(circuitoGeo) {
     super();
     
     // Crea una instancia de Circuito y obtén la geometría del tubo
-    const circuito = new Circuito(gui, titleGui);
-     this.geomTubo = circuito.get_geometria();
+    
+     this.geomTubo = circuitoGeo;
 
     // Crea los nodos Object3D
     this.posicionSuperficie = new THREE.Object3D();
@@ -46,6 +46,8 @@ class Coche extends THREE.Object3D {
     this.velocidad = 10;
     
     
+  
+    
   }
 
   createGUI(gui, titleGui) {
@@ -70,11 +72,11 @@ class Coche extends THREE.Object3D {
 
   update() {
     // En el método 'update', actualizas la posición y orientación del tubo
-    
+    /*
     var segundosTranscurridos = this.reloj.getDelta(); //segundos desde la última llamada
     this.t += this.velocidad * segundosTranscurridos;
 
-    const posTmp = this.path.getPointAt (this.t);
+    const posTmp = this.path.getPointAt(this.t);
     this.nodoPosOrientTubo.position.copy(posTmp);
     
     const tangente = this.path.getTangentAt(this.t);
@@ -82,8 +84,9 @@ class Coche extends THREE.Object3D {
     const segmentoActual = Math.floor(this.t * this.segmentos);
     this.nodoPosOrientTubo.up = this.tubo.binormals[segmentoActual];
     this.nodoPosOrientTubo.lookAt(posTmp);
+    */
 }
-x
+
 }
 
 export { Coche };
