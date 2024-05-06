@@ -48,13 +48,13 @@ class Circuito extends THREE.Object3D {
 
     // Crear la geometría del tubo
     const curve = new THREE.CatmullRomCurve3(points,true);
-    const tubeGeometry = new THREE.TubeGeometry(curve, 512, 0.25, 8, true);
+     this.tubeGeometry = new THREE.TubeGeometry(curve, 512, 0.25, 8, true);
 
     // Crear el material del tubo
     const tubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 
     // Crear la malla del tubo
-    const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
+    const tubeMesh = new THREE.Mesh(this.tubeGeometry, tubeMaterial);
 
     // Escalar el tubo
     tubeMesh.scale.set(tama, tama, tama);
@@ -65,6 +65,9 @@ class Circuito extends THREE.Object3D {
     return base;
 }
 
+  get_geometria(){
+    return this.tubeGeometry;
+  }
   
   createGUI (gui,titleGui) {
     // Controles para el movimiento de la parte móvil

@@ -3,36 +3,21 @@ import * as THREE from 'three'
 import { CSG } from '../libs/CSG-v2.js'
 import { MTLLoader } from '../libs/MTLLoader.js'
 import { OBJLoader } from '../libs/OBJLoader.js'
-import { Circuito } from '../circuito/Circuito.js'
 
-class Coche extends THREE.Object3D {
+class marioKart extends THREE.Object3D {
   constructor(gui,titleGui) {
     super();
-
-    const posicionSuperficie = new THREE.Object3D();
-    const movimientoLateral = new THREE.Object3D();
-    const orientacionTubo = new THREE.Object3D();
-
-    posicionSuperficie.add(movimientoLateral);
-    movimientoLateral.add(orientacionTubo);
-    
-
-
     
     var materialLoader = new MTLLoader();
     var objectLoader = new OBJLoader();
-    materialLoader.load('../modelo_cargado/model.mtl',
+    materialLoader . load('../modelo_cargado/model.mtl' ,
     ( materials ) => {
     objectLoader.setMaterials(materials);
-    objectLoader.load('../modelo_cargado/model.obj',
+    objectLoader . load('../modelo_cargado/model.obj' ,
     ( object ) => {
-      object.scale.set(0.1, 0.1, 0.1);
-      orientacionTubo.add(object);
-      this.add(posicionSuperficie);
+    this . add ( object ) ;
     } , null , null ) ;
     } ) ;
-
-
 
   }
   
@@ -65,4 +50,4 @@ class Coche extends THREE.Object3D {
   }
 }
 
-export { Coche }
+export { marioKart }

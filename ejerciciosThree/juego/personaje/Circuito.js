@@ -48,7 +48,7 @@ class Circuito extends THREE.Object3D {
 
     // Crear la geometría del tubo
     const curve = new THREE.CatmullRomCurve3(points,true);
-    const tubeGeometry = new THREE.TubeGeometry(curve, 512, 0.25, 8, true);
+    const tubeGeometry = new THREE.TubeGeometry(curve, 512, 0.05, 8, true);
 
     // Crear el material del tubo
     const tubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });

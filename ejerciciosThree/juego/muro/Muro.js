@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 import { CSG } from '../libs/CSG-v2.js'
  
-class Circuito extends THREE.Object3D {
+class Muro extends THREE.Object3D {
   constructor(gui,titleGui) {
     super();
     
@@ -11,7 +11,7 @@ class Circuito extends THREE.Object3D {
     this.createGUI(gui,titleGui);
     
     // El material se usa desde varios métodos. Por eso se alamacena en un atributo
-    this.material = new THREE.MeshStandardMaterial({color: 0x0000ff,side: THREE.DoubleSide});
+    this.material = new THREE.MeshStandardMaterial({color: 0x8b8c7a,side: THREE.DoubleSide});
     this.material2 = new THREE.MeshStandardMaterial({color: 0x9b9b9b,side: THREE.DoubleSide});
     this.material3 = new THREE.MeshStandardMaterial({color: 0xff0080,side: THREE.DoubleSide});
     
@@ -25,42 +25,57 @@ class Circuito extends THREE.Object3D {
   }
   
   createBase(tama) {
+    // Crea el muro principal
+    var muro = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.1), this.material);
+    muro.rotation.y = Math.PI / 2;
+    muro.position.set(0,-0.2,0);
+    
+    
+    // Crea un agujero en el muro utilizando las formas creadas
+    var hole = new THREE.Shape();
+    hole.absellipse(0,0,0.1,0.1,0,Math.PI * 2);
+    
+    var holeGeometry = new THREE.ExtrudeGeometry(hole, {
+      depth: 0.35,
+      bevelEnabled: false
+  });
+    
+    var geometry = new THREE.ShapeGeometry(hole);
+
+    var hoyo = new THREE.Mesh(holeGeometry, this.material);
+    hoyo.rotation.y = Math.PI / 2;
+    hoyo.position.set(-0.15,0,0.2);
+
+    var hoyo2 = new THREE.Mesh(holeGeometry, this.material);
+    hoyo2.rotation.y = Math.PI / 2;
+    hoyo2.position.set(-0.15,0,-0.2);
+
+
+
+    // Crear un shape para la boca sonriente
+    var bocaShape = new THREE.Shape();
+    bocaShape.moveTo(0.25, 0.05);
+    bocaShape.quadraticCurveTo(0, 0.35, -0.25, 0.05);
+
+    var bocaGeometry = new THREE.ExtrudeGeometry(bocaShape, {
+        depth: 0.35,
+        bevelEnabled: false
+    });
+
+    var boca = new THREE.Mesh(bocaGeometry, this.material); // Crear la geometría de la boca
+    boca.position.set(-0.20, -0.2, 0); // Posición de la boca
+    boca.rotation.x = Math.PI ; // Rotar la boca para que esté orientada correctamente
+    boca.rotation.y = Math.PI / 2 ;
+
+    var csg = new CSG();
+    csg.subtract([muro,hoyo]);
+    csg.subtract([hoyo2]);
+    csg.subtract([boca]);
+    var resulF = csg.toMesh();
+    // Crea un objeto 3D para contener el muro y cualquier otra cosa que desees agregar
     const base = new THREE.Object3D();
-
-    // Definir la trayectoria del circuito
-    const points = [
-        new THREE.Vector3(-3, 0, 0),
-        new THREE.Vector3(0, 2, 2),
-        new THREE.Vector3(2, 0, 2),
-        new THREE.Vector3(3, 2, 0),
-        new THREE.Vector3(2, 4, -2),
-        new THREE.Vector3(0, 6, -2),
-        new THREE.Vector3(-2, 4, 0),
-        new THREE.Vector3(-3, 6, 2),
-        new THREE.Vector3(-2, 4, 4),
-        new THREE.Vector3(0, 2, 4),
-        new THREE.Vector3(2, 0, 3),
-        new THREE.Vector3(3, -2, 2),
-        new THREE.Vector3(2, 0, 0),
-        new THREE.Vector3(0, -2, -2),
-       // new THREE.Vector3(-3, 0, 0),
-    ];
-
-    // Crear la geometría del tubo
-    const curve = new THREE.CatmullRomCurve3(points,true);
-    const tubeGeometry = new THREE.TubeGeometry(curve, 512, 0.25, 8, true);
-
-    // Crear el material del tubo
-    const tubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-
-    // Crear la malla del tubo
-    const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
-
-    // Escalar el tubo
-    tubeMesh.scale.set(tama, tama, tama);
-
-    // Agregar el tubo a la base
-    base.add(tubeMesh);
+    base.add(resulF);
+    
 
     return base;
 }
@@ -92,4 +107,4 @@ class Circuito extends THREE.Object3D {
   }
 }
 
-export { Circuito }
+export { Muro }

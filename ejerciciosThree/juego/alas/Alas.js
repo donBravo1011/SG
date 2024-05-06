@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 import { CSG } from '../libs/CSG-v2.js'
  
-class Circuito extends THREE.Object3D {
+class Alas extends THREE.Object3D {
   constructor(gui,titleGui) {
     super();
     
@@ -25,46 +25,41 @@ class Circuito extends THREE.Object3D {
   }
   
   createBase(tama) {
+    //-----------------------------Inicio Perfil----------------------------------------------
+    const shape = new THREE.Shape();
+
+    // Definir el perfil del ala
+    shape.moveTo(0, 1);
+    shape.quadraticCurveTo(1, 1.5, 0.2, 0.8);
+    shape.quadraticCurveTo(0.9, 1.2, 0.2, 0.6);
+    shape.quadraticCurveTo(0.8, 0.8, 0.2, 0.4);
+    shape.quadraticCurveTo(0.6, 0.6, 0, 0.1);
+    shape.lineTo(0, 0.1); // Asegúrate de cerrar el perfil
+
+    // Crear geometría de extrusión a partir del perfil
+    const extrudeSettings = {
+        depth: 0.1, // Profundidad de la extrusión
+        bevelEnabled: false // Sin biseles
+    };
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    geometry.scale(tama, tama, tama); // Escalar la geometría según el parámetro 'tama'
+
+    // Crear material y malla
+    
+    const ala1 = new THREE.Mesh(geometry, this.material);
+    var ala2 = ala1.clone();
+    ala1.rotation.y = -(Math.PI / 2);
+    ala2.rotation.y = Math.PI  / 2;
+
+    ala1.position.set(0, 0, 0.1);
+    ala2.position.set(0, 0, -0.1);
+    // Crear un objeto contenedor y agregar la malla
     const base = new THREE.Object3D();
-
-    // Definir la trayectoria del circuito
-    const points = [
-        new THREE.Vector3(-3, 0, 0),
-        new THREE.Vector3(0, 2, 2),
-        new THREE.Vector3(2, 0, 2),
-        new THREE.Vector3(3, 2, 0),
-        new THREE.Vector3(2, 4, -2),
-        new THREE.Vector3(0, 6, -2),
-        new THREE.Vector3(-2, 4, 0),
-        new THREE.Vector3(-3, 6, 2),
-        new THREE.Vector3(-2, 4, 4),
-        new THREE.Vector3(0, 2, 4),
-        new THREE.Vector3(2, 0, 3),
-        new THREE.Vector3(3, -2, 2),
-        new THREE.Vector3(2, 0, 0),
-        new THREE.Vector3(0, -2, -2),
-       // new THREE.Vector3(-3, 0, 0),
-    ];
-
-    // Crear la geometría del tubo
-    const curve = new THREE.CatmullRomCurve3(points,true);
-    const tubeGeometry = new THREE.TubeGeometry(curve, 512, 0.25, 8, true);
-
-    // Crear el material del tubo
-    const tubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-
-    // Crear la malla del tubo
-    const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
-
-    // Escalar el tubo
-    tubeMesh.scale.set(tama, tama, tama);
-
-    // Agregar el tubo a la base
-    base.add(tubeMesh);
+    base.add(ala1);
+    base.add(ala2);
 
     return base;
-}
-
+  }
   
   createGUI (gui,titleGui) {
     // Controles para el movimiento de la parte móvil
@@ -92,4 +87,4 @@ class Circuito extends THREE.Object3D {
   }
 }
 
-export { Circuito }
+export { Alas }
