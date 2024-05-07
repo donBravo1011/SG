@@ -1,16 +1,33 @@
 
 import * as THREE from 'three'
 import { CSG } from '../libs/CSG-v2.js'
+
+
  
 class Muro extends THREE.Object3D {
-  constructor(gui,titleGui) {
+  constructor(geomTubo) {
     super();
     
-    // Se crea la parte de la interfaz que corresponde a la grapadora
-    // Se crea primero porque otros métodos usan las variables que se definen para la interfaz
-    this.createGUI(gui,titleGui);
-    
-    // El material se usa desde varios métodos. Por eso se alamacena en un atributo
+    this.t = 0.2;
+    this.reloj = new THREE.Clock();
+
+    this.velocidad = 0.01;
+
+    this.tubo = geomTubo;
+    this.path = geomTubo.parameters.path;
+    this.radio = geomTubo.parameters.radius;
+    this.segmentos = geomTubo.parameters.tubularSegments;
+
+    this.posicionSuperficie = new THREE.Object3D();
+    this.posicionSuperficie.position.y = this.radio+0.15;
+    this.movimientoLateral = new THREE.Object3D();
+    this.nodoPosOrientTubo = new THREE.Object3D();
+
+    this.nodoPosOrientTubo.add(this.movimientoLateral);
+    this.movimientoLateral.add(this.posicionSuperficie);
+
+
+
     this.material = new THREE.MeshStandardMaterial({color: 0x8b8c7a,side: THREE.DoubleSide});
     this.material2 = new THREE.MeshStandardMaterial({color: 0x9b9b9b,side: THREE.DoubleSide});
     this.material3 = new THREE.MeshStandardMaterial({color: 0xff0080,side: THREE.DoubleSide});
@@ -20,8 +37,9 @@ class Muro extends THREE.Object3D {
     var base = this.createBase(tamano);
     
     
-    // Al nodo  this, la grapadora, se le cuelgan como hijos la base y la parte móvil
-    this.add (base);
+    this.posicionSuperficie.add(base);
+    
+    this.add (this.nodoPosOrientTubo);
   }
   
   createBase(tama) {
@@ -38,7 +56,7 @@ class Muro extends THREE.Object3D {
     var holeGeometry = new THREE.ExtrudeGeometry(hole, {
       depth: 0.35,
       bevelEnabled: false
-  });
+    });
     
     var geometry = new THREE.ShapeGeometry(hole);
 
@@ -74,6 +92,10 @@ class Muro extends THREE.Object3D {
     var resulF = csg.toMesh();
     // Crea un objeto 3D para contener el muro y cualquier otra cosa que desees agregar
     const base = new THREE.Object3D();
+
+    resulF.scale.set(0.25,0.25,0.25);
+    resulF.rotateY(90);
+
     base.add(resulF);
     
 
@@ -81,29 +103,25 @@ class Muro extends THREE.Object3D {
 }
 
   
-  createGUI (gui,titleGui) {
-    // Controles para el movimiento de la parte móvil
-    this.guiControls = {
-      rotacion : 0
-    } 
-    
-    // Se crea una sección para los controles de la caja
-    var folder = gui.addFolder (titleGui);
-    // Estas lineas son las que añaden los componentes de la interfaz
-    // Las tres cifras indican un valor mínimo, un máximo y el incremento
-    folder.add (this.guiControls, 'rotacion', -0.125, 0.2, 0.001)
-      .name ('Apertura : ')
-      .onChange ( (value) => this.setAngulo (-value) );
-  }
-  
-  
-  
-  setAngulo (valor) {
-    this.movil.rotation.z = valor;
-  }
-  
   update () {
-    // No hay nada que actualizar ya que la apertura de la grapadora se ha actualizado desde la interfaz
+    var segundosTranscurridos = this.reloj.getDelta(); 
+    this.t += this.velocidad * segundosTranscurridos ;
+
+    if (this.t < 0) {
+      this.t += 1;  // Ajustar this.t al límite inferior de la curva
+      console.log("hola");
+    } else if (this.t > 1) {
+        this.t -= 1;  // Ajustar this.t al límite superior de la curva
+        console.log("adios");
+    }
+
+    var posTmp = this.path.getPointAt(this.t) ;
+    this.nodoPosOrientTubo.position.copy(posTmp);
+    var tangente = this.path.getTangentAt(this.t);
+    posTmp.add(tangente);
+    var segmentoActual = Math.floor(this.t * this.segmentos);
+    this.nodoPosOrientTubo.up = this.tubo.binormals[segmentoActual];
+    this.nodoPosOrientTubo.lookAt(posTmp);
   }
 }
 

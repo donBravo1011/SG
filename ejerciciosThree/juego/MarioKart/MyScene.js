@@ -10,6 +10,12 @@ import { TrackballControls } from '../libs/TrackballControls.js'
 
 import { Personaje } from '../personaje/Personaje.js'
 import { Circuito } from '../circuito/Circuito.js'
+import { Muro } from '../muro/Muro.js'
+import { Seta } from '../seta/Seta.js'
+import { Boo } from '../boo/Boo.js'
+import { Muelle } from '../muelle/Muelle.js'
+import { Coin} from '../coin/Coin.js'
+import { Alas} from '../alas/Alas.js'
  
 /// La clase fachada del modelo
 /**
@@ -21,7 +27,7 @@ class MyScene extends THREE.Scene {
   // la visualización de la escena
   constructor (myCanvas) { 
     super();
-    
+    this.cambioCamara = true;
     // Lo primero, crear el visualizador, pasándole el lienzo sobre el que realizar los renderizados.
     this.renderer = this.createRenderer(myCanvas);
     
@@ -51,8 +57,20 @@ class MyScene extends THREE.Scene {
     // la gui y el texto bajo el que se agruparán los controles de la interfaz que añada el modelo.
     var cir = new Circuito();
     this.model = cir;
+    this.boo = new Boo(cir.get_geometria());
+    this.alas = new Alas();
+    this.coin = new Coin(cir.get_geometria());
+    this.muelle = new Muelle(cir.get_geometria());
+    this.muro = new Muro(cir.get_geometria());
+    this.seta = new Seta(cir.get_geometria());
     this.personaje = new Personaje(cir.get_geometria());
     this.cameraPersonaje = this.personaje.get_camera();
+    this.add(this.alas);
+    this.add(this.coin);
+    this.add(this.muelle);
+    this.add(this.boo);
+    this.add(this.seta);
+    this.add(this.muro);
     this.add(this.personaje);
     this.add (this.model);
     
@@ -67,7 +85,7 @@ class MyScene extends THREE.Scene {
     //   Los planos de recorte cercano y lejano
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100);
     // También se indica dónde se coloca
-    this.camera.position.set (2.5, 0.5,);
+    this.camera.position.set (10, -3,5);
     // Y hacia dónde mira
     var look = new THREE.Vector3 (0,0,0);
     this.camera.lookAt(look);
@@ -198,9 +216,11 @@ class MyScene extends THREE.Scene {
   }
   
   getCamera () {
-    // En principio se devuelve la única cámara que tenemos
-    // Si hubiera varias cámaras, este método decidiría qué cámara devuelve cada vez que es consultado
-    return this.cameraPersonaje;
+    if(this.cambioCamara == true){
+      return this.camera;
+    }else{
+      return this.cameraPersonaje;
+    }
   }
   //llamar cuando pulsas espacio
   setCameraAspect (ratio) {
@@ -231,6 +251,33 @@ class MyScene extends THREE.Scene {
     this.model.update();
 
     this.personaje.update();
+    this.muro.update();
+    this.seta.update();
+    this.boo.update();
+    this.muelle.update();
+    this.coin.update();
+    this.alas.update();
+
+    $(window).on("keydown", (event) => {
+      if (event.key === " " && !this.spaceBarPressed) {
+          // Marcar la tecla como presionada
+          this.spaceBarPressed = true;
+          if(this.cambioCamara == true){
+            this.cambioCamara = false;
+          }else{
+            this.cambioCamara = true;
+          }
+      }
+    });
+
+    // Manejar evento de liberación de tecla
+    $(window).on("keyup", (event) => {
+        if (event.key === " ") {
+            // Marcar la tecla como no presionada
+            this.spaceBarPressed = false;
+        }
+    });
+  
     
     // Este método debe ser llamado cada vez que queramos visualizar la escena de nuevo.
     // Literalmente le decimos al navegador: "La próxima vez que haya que refrescar la pantalla, llama al método que te indico".
@@ -242,13 +289,13 @@ class MyScene extends THREE.Scene {
 
 /// La función   main
 $(function () {
-  
-  // Se instancia la escena pasándole el  div  que se ha creado en el html para visualizar
+  // Se instancia la escena pasándole el div que se ha creado en el html para visualizar
   var scene = new MyScene("#WebGL-output");
 
-  // Se añaden los listener de la aplicación. En este caso, el que va a comprobar cuándo se modifica el tamaño de la ventana de la aplicación.
-  window.addEventListener ("resize", () => scene.onWindowResize());
-  
+  // Se añade el event listener para el evento de cambio de tamaño de la ventana
+  window.addEventListener("resize", () => scene.onWindowResize());
+
   // Que no se nos olvide, la primera visualización.
   scene.update();
 });
+

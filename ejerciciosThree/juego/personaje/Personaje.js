@@ -9,7 +9,7 @@ class Personaje extends THREE.Object3D {
     this.t = 0;
     this.reloj = new THREE.Clock();
 
-    this.velocidad = 0.1;
+    this.velocidad = 0.025;
 
     this.tubo = geomTubo;
     this.path = geomTubo.parameters.path;
@@ -32,7 +32,6 @@ class Personaje extends THREE.Object3D {
     // A la base no se accede desde ningún método. Se almacena en una variable local del constructor
     var tamano = 0.5;   // 15 cm de largo. Las unidades son metros
     var base = this.createBase(tamano);
-    var muro = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.1), this.material);
     
     this.posicionSuperficie.add(base);
     
@@ -120,9 +119,25 @@ class Personaje extends THREE.Object3D {
     base.add( ojo4 );
     base.add(lengua); // Agregar la lengua a la boca
 
-    this.camera = new THREE.PerspectiveCamera(120, window.innerWidth / window.innerHeight, 0.01, 100);
+    this.camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.01, 100);
     //this.camera.rotation.y = Math.PI;
-    this.camera.position.set(0,0.75,1);
+    this.camera.position.set(0,0.9,1);
+
+
+    // Suponiendo que 'personaje' es el objeto 3D que quieres seguir
+
+    // Calcula la posición de la cámara detrás del personaje
+    var offset = new THREE.Vector3(0, 1,-0.75); // Ajusta estos valores según tu escena
+
+    // Aplica la posición al personaje para obtener la posición de la cámara
+    var cameraPosition = resulF.position.clone().add(offset);
+
+    // Establece la posición de la cámara
+    this.camera.position.copy(cameraPosition);
+
+    // Haz que la cámara mire hacia el personaje
+    this.camera.lookAt(resulF.position);
+
    
     this.coche = new Coche();
 
@@ -149,6 +164,7 @@ class Personaje extends THREE.Object3D {
       console.log("hola");
     } else if (this.t > 1) {
         this.t -= 1;  // Ajustar this.t al límite superior de la curva
+        this.velocidad += 0.01;
         console.log("adios");
     }
 

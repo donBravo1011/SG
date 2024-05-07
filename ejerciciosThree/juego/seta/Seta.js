@@ -2,12 +2,27 @@
 import * as THREE from 'three'
  
 class Seta extends THREE.Object3D {
-  constructor(gui,titleGui) {
+  constructor(geomTubo) {
     super();
     
-    // Se crea la parte de la interfaz que corresponde a la grapadora
-    // Se crea primero porque otros métodos usan las variables que se definen para la interfaz
-    this.createGUI(gui,titleGui);
+    this.t = 0.1;
+    this.reloj = new THREE.Clock();
+
+    this.velocidad = 0.011;
+
+    this.tubo = geomTubo;
+    this.path = geomTubo.parameters.path;
+    this.radio = geomTubo.parameters.radius;
+    this.segmentos = geomTubo.parameters.tubularSegments;
+
+    this.posicionSuperficie = new THREE.Object3D();
+    this.posicionSuperficie.position.y = this.radio+0.05;
+    this.movimientoLateral = new THREE.Object3D();
+    this.nodoPosOrientTubo = new THREE.Object3D();
+
+    this.nodoPosOrientTubo.add(this.movimientoLateral);
+    this.movimientoLateral.add(this.posicionSuperficie);
+ 
     
     // El material se usa desde varios métodos. Por eso se alamacena en un atributo
     this.material = new THREE.MeshStandardMaterial({color: 0xffff00});
@@ -19,8 +34,9 @@ class Seta extends THREE.Object3D {
     var base = this.createBase(tamano);
     
     
-    // Al nodo  this, la grapadora, se le cuelgan como hijos la base y la parte móvil
-    this.add (base);
+    this.posicionSuperficie.add(base);
+    
+    this.add (this.nodoPosOrientTubo);
   }
   
   createBase(tama) {
@@ -53,34 +69,34 @@ class Seta extends THREE.Object3D {
     const material = new THREE.MeshStandardMaterial( { color:  0xFF0000, side: THREE.DoubleSide} );
     const lathe = new THREE.Mesh( geometry, material );
     var base = new THREE.Object3D();
+
+    lathe.scale.set(0.25,0.25,0.25)
+
     base.add( lathe );
 
     return base;
   }
   
-  createGUI (gui,titleGui) {
-    // Controles para el movimiento de la parte móvil
-    this.guiControls = {
-      rotacion : 0
-    } 
-    
-    // Se crea una sección para los controles de la caja
-    var folder = gui.addFolder (titleGui);
-    // Estas lineas son las que añaden los componentes de la interfaz
-    // Las tres cifras indican un valor mínimo, un máximo y el incremento
-    folder.add (this.guiControls, 'rotacion', -0.125, 0.2, 0.001)
-      .name ('Apertura : ')
-      .onChange ( (value) => this.setAngulo (-value) );
-  }
-  
-  
-  
-  setAngulo (valor) {
-    this.movil.rotation.z = valor;
-  }
   
   update () {
-    // No hay nada que actualizar ya que la apertura de la grapadora se ha actualizado desde la interfaz
+    var segundosTranscurridos = this.reloj.getDelta(); 
+    this.t += this.velocidad * segundosTranscurridos ;
+
+    if (this.t < 0) {
+      this.t += 1;  // Ajustar this.t al límite inferior de la curva
+      console.log("hola");
+    } else if (this.t > 1) {
+        this.t -= 1;  // Ajustar this.t al límite superior de la curva
+        console.log("adios");
+    }
+
+    var posTmp = this.path.getPointAt(this.t) ;
+    this.nodoPosOrientTubo.position.copy(posTmp);
+    var tangente = this.path.getTangentAt(this.t);
+    posTmp.add(tangente);
+    var segmentoActual = Math.floor(this.t * this.segmentos);
+    this.nodoPosOrientTubo.up = this.tubo.binormals[segmentoActual];
+    this.nodoPosOrientTubo.lookAt(posTmp);
   }
 }
 

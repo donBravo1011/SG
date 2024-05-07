@@ -9,7 +9,7 @@ import { TrackballControls } from '../libs/TrackballControls.js'
 // Clases de mi proyecto
 
 import { Coin } from './Coin.js'
-
+import { Circuito } from '../circuito/Circuito.js'
  
 /// La clase fachada del modelo
 /**
@@ -46,10 +46,8 @@ class MyScene extends THREE.Scene {
     this.add (this.axis);
     
     
-    // Por último creamos el modelo.
-    // El modelo puede incluir su parte de la interfaz gráfica de usuario. Le pasamos la referencia a 
-    // la gui y el texto bajo el que se agruparán los controles de la interfaz que añada el modelo.
-    this.model = new Coin(this.gui, "Controles");
+    this.cir = new Circuito();
+    this.model = new Coin(this.cir.get_geometria());
     this.add (this.model);
   }
   

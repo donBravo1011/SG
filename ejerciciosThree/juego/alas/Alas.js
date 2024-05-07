@@ -1,14 +1,13 @@
 
 import * as THREE from 'three'
 import { CSG } from '../libs/CSG-v2.js'
+import * as TWEEN from '../libs/tween.esm.js'
+
+
  
 class Alas extends THREE.Object3D {
-  constructor(gui,titleGui) {
+  constructor() {
     super();
-    
-    // Se crea la parte de la interfaz que corresponde a la grapadora
-    // Se crea primero porque otros métodos usan las variables que se definen para la interfaz
-    this.createGUI(gui,titleGui);
     
     // El material se usa desde varios métodos. Por eso se alamacena en un atributo
     this.material = new THREE.MeshStandardMaterial({color: 0x0000ff,side: THREE.DoubleSide});
@@ -19,7 +18,7 @@ class Alas extends THREE.Object3D {
     var tamano = 0.5;   // 15 cm de largo. Las unidades son metros
     var base = this.createBase(tamano);
     
-    
+    this.animateObject();
     // Al nodo  this, la grapadora, se le cuelgan como hijos la base y la parte móvil
     this.add (base);
   }
@@ -61,29 +60,25 @@ class Alas extends THREE.Object3D {
     return base;
   }
   
-  createGUI (gui,titleGui) {
-    // Controles para el movimiento de la parte móvil
-    this.guiControls = {
-      rotacion : 0
-    } 
-    
-    // Se crea una sección para los controles de la caja
-    var folder = gui.addFolder (titleGui);
-    // Estas lineas son las que añaden los componentes de la interfaz
-    // Las tres cifras indican un valor mínimo, un máximo y el incremento
-    folder.add (this.guiControls, 'rotacion', -0.125, 0.2, 0.001)
-      .name ('Apertura : ')
-      .onChange ( (value) => this.setAngulo (-value) );
+  animateObject() {
+    var origen = { x: -1 };
+    var destino = { x: 1 }; // Cambia el valor de destino según el desplazamiento deseado
+    var movimiento = new TWEEN.Tween(origen)
+        .to(destino, 1000)
+        .easing(TWEEN.Easing.Linear.None)
+        .onUpdate(() => {
+            // Actualiza la posición del objeto según el valor interpolado
+            this.position.x = origen.x;
+        })
+        .repeat(Infinity)
+        .yoyo(true)
+        .start();
   }
-  
-  
-  
-  setAngulo (valor) {
-    this.movil.rotation.z = valor;
-  }
+
+
   
   update () {
-    // No hay nada que actualizar ya que la apertura de la grapadora se ha actualizado desde la interfaz
+    TWEEN.update();
   }
 }
 
