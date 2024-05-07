@@ -1,6 +1,7 @@
 
 import * as THREE from 'three'
 import { CSG } from '../libs/CSG-v2.js'
+import { Coche } from '../coche/Coche.js'
  
 class Personaje extends THREE.Object3D {
   constructor(geomTubo) {
@@ -8,7 +9,7 @@ class Personaje extends THREE.Object3D {
     this.t = 0;
     this.reloj = new THREE.Clock();
 
-    this.velocidad = 10;
+    this.velocidad = 0.1;
 
     this.tubo = geomTubo;
     this.path = geomTubo.parameters.path;
@@ -16,6 +17,7 @@ class Personaje extends THREE.Object3D {
     this.segmentos = geomTubo.parameters.tubularSegments;
 
     this.posicionSuperficie = new THREE.Object3D();
+    this.posicionSuperficie.position.y = this.radio+0.02;
     this.movimientoLateral = new THREE.Object3D();
     this.nodoPosOrientTubo = new THREE.Object3D();
 
@@ -30,10 +32,16 @@ class Personaje extends THREE.Object3D {
     // A la base no se accede desde ningún método. Se almacena en una variable local del constructor
     var tamano = 0.5;   // 15 cm de largo. Las unidades son metros
     var base = this.createBase(tamano);
+    var muro = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.1), this.material);
     
     this.posicionSuperficie.add(base);
     
-    this.add (this.posicionSuperficie);
+    this.add (this.nodoPosOrientTubo);
+
+
+
+
+
   }
   
   createBase(tama) {
@@ -52,17 +60,17 @@ class Personaje extends THREE.Object3D {
     ojo1.translateY(0.2);
     ojo1.translateZ(0.15);
 
-    ojo3.translateX(0.35);
-    ojo3.translateY(0.2);
-    ojo3.translateZ(0.15);
+    ojo3.translateX(0.025);
+    ojo3.translateY(0.17);
+    ojo3.translateZ(0.08);
 
     ojo2.translateX(0.35);
     ojo2.translateY(0.2);
     ojo2.translateZ(-0.1);
 
-    ojo4.translateX(0.35);
-    ojo4.translateY(0.2);
-    ojo4.translateZ(-0.1);
+    ojo4.translateX(-0.025);
+    ojo4.translateY(0.17);
+    ojo4.translateZ(0.08);
 
 
     // Crear un shape para la boca sonriente
@@ -83,8 +91,8 @@ class Personaje extends THREE.Object3D {
 
     var lenguaGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.2, 16); // Geometría de un cilindro para representar la lengua
     var lengua = new THREE.Mesh(lenguaGeometry, this.material3); // Crear la malla de la lengua
-    lengua.position.set(0.47, -0.1, 0); // Posición de la lengua, ajusta según sea necesario
-    //lengua.rotation.x = Math.PI ; // Rotar la boca para que esté orientada correctamente
+    lengua.position.set(0, 0.1, 0.1); // Posición de la lengua, ajusta según sea necesario
+    lengua.rotation.y = Math.PI/2 ; // Rotar la boca para que esté orientada correctamente
     lengua.rotation.z = Math.PI  / 2;
     
     var csg = new CSG();
@@ -93,34 +101,54 @@ class Personaje extends THREE.Object3D {
     ojos.union([ojo1,ojo2,boca]);
     var resul1 = ojos.toMesh();
     csg.subtract([esfera,resul1]);
+
+  
     
 
     var resulF = csg.toMesh();
+
+    resulF.translateY(0.125);
+    resulF.rotateY(-(Math.PI/2));
+    resulF.scale.set(0.2,0.2,0.2);
+    ojo3.scale.set(0.2,0.2,0.2);
+    ojo4.scale.set(0.2,0.2,0.2);
+    lengua.scale.set(0.2,0.2,0.2);
     
     var base = new THREE.Object3D();
     base.add( resulF );
     base.add( ojo3 );
     base.add( ojo4 );
     base.add(lengua); // Agregar la lengua a la boca
+
+    this.camera = new THREE.PerspectiveCamera(120, window.innerWidth / window.innerHeight, 0.01, 100);
+    //this.camera.rotation.y = Math.PI;
+    this.camera.position.set(0,0.75,1);
+   
+    this.coche = new Coche();
+
+    base.add(this.camera);
+    base.add(this.coche); 
     
 
     return base;
   }
   
   
-  
+  get_camera(){
+    return this.camera;
+  }
   
   
   update () {
-
+    
     var segundosTranscurridos = this.reloj.getDelta(); 
     this.t += this.velocidad * segundosTranscurridos ;
 
     if (this.t < 0) {
-      this.t = 0;  // Ajustar this.t al límite inferior de la curva
+      this.t += 1;  // Ajustar this.t al límite inferior de la curva
       console.log("hola");
     } else if (this.t > 1) {
-        this.t = 1;  // Ajustar this.t al límite superior de la curva
+        this.t -= 1;  // Ajustar this.t al límite superior de la curva
         console.log("adios");
     }
 
@@ -131,6 +159,7 @@ class Personaje extends THREE.Object3D {
     var segmentoActual = Math.floor(this.t * this.segmentos);
     this.nodoPosOrientTubo.up = this.tubo.binormals[segmentoActual];
     this.nodoPosOrientTubo.lookAt(posTmp);
+    
   }
 }
 

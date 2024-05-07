@@ -51,9 +51,11 @@ class MyScene extends THREE.Scene {
     // la gui y el texto bajo el que se agruparán los controles de la interfaz que añada el modelo.
     var cir = new Circuito();
     this.model = cir;
-    this.model.add(new Personaje(cir.get_geometria()));
+    this.personaje = new Personaje(cir.get_geometria());
+    this.cameraPersonaje = this.personaje.get_camera();
+    this.add(this.personaje);
     this.add (this.model);
-    this
+    
     
 
   }
@@ -63,7 +65,7 @@ class MyScene extends THREE.Scene {
     //   El ángulo del campo de visión vértical en grados sexagesimales
     //   La razón de aspecto ancho/alto
     //   Los planos de recorte cercano y lejano
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 10);
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100);
     // También se indica dónde se coloca
     this.camera.position.set (2.5, 0.5,);
     // Y hacia dónde mira
@@ -198,9 +200,9 @@ class MyScene extends THREE.Scene {
   getCamera () {
     // En principio se devuelve la única cámara que tenemos
     // Si hubiera varias cámaras, este método decidiría qué cámara devuelve cada vez que es consultado
-    return this.camera;
+    return this.cameraPersonaje;
   }
-  
+  //llamar cuando pulsas espacio
   setCameraAspect (ratio) {
     // Cada vez que el usuario modifica el tamaño de la ventana desde el gestor de ventanas de
     // su sistema operativo hay que actualizar el ratio de aspecto de la cámara
@@ -208,7 +210,7 @@ class MyScene extends THREE.Scene {
     // Y si se cambia ese dato hay que actualizar la matriz de proyección de la cámara
     this.camera.updateProjectionMatrix();
   }
-    
+    //LLamar
   onWindowResize () {
     // Este método es llamado cada vez que el usuario modifica el tamapo de la ventana de la aplicación
     // Hay que actualizar el ratio de aspecto de la cámara
@@ -227,6 +229,8 @@ class MyScene extends THREE.Scene {
     
     // Se actualiza el resto del modelo
     this.model.update();
+
+    this.personaje.update();
     
     // Este método debe ser llamado cada vez que queramos visualizar la escena de nuevo.
     // Literalmente le decimos al navegador: "La próxima vez que haya que refrescar la pantalla, llama al método que te indico".

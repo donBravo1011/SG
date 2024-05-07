@@ -36,7 +36,7 @@ class MyScene extends THREE.Scene {
     this.createLights ();
     
     // Tendremos una cámara con un control de movimiento con el ratón
-    this.createCamera ();
+    
     
     // Un suelo 
     this.createGround ();
@@ -52,6 +52,7 @@ class MyScene extends THREE.Scene {
     // la gui y el texto bajo el que se agruparán los controles de la interfaz que añada el modelo.
     this.cir = new Circuito();
     this.model = new Personaje(this.cir.get_geometria());
+    this.createCamera();
     this.add (this.model);
   }
   
@@ -60,6 +61,7 @@ class MyScene extends THREE.Scene {
     //   El ángulo del campo de visión vértical en grados sexagesimales
     //   La razón de aspecto ancho/alto
     //   Los planos de recorte cercano y lejano
+    this.camera2 = this.model.get_camera();
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 10);
     // También se indica dónde se coloca
     this.camera.position.set (2.5, 0.5,);
@@ -195,7 +197,7 @@ class MyScene extends THREE.Scene {
   getCamera () {
     // En principio se devuelve la única cámara que tenemos
     // Si hubiera varias cámaras, este método decidiría qué cámara devuelve cada vez que es consultado
-    return this.camera;
+    return this.camera2;
   }
   
   setCameraAspect (ratio) {
