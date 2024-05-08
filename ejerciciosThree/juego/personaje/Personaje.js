@@ -148,9 +148,26 @@ class Personaje extends THREE.Object3D {
     return base;
   }
   
+
+  rotateCar(direction) {
+    // Ajusta la rotación del coche según la dirección proporcionada
+    if (direction === 'left') {
+      this.movimientoLateral.rotation.z += 0.0001; // Por ejemplo, ajusta el valor de rotación según tu necesidad
+    } else if (direction === 'right') {
+      this.movimientoLateral.rotation.z -= 0.0001; // Por ejemplo, ajusta el valor de rotación según tu necesidad
+    }
+  }
   
   get_camera(){
     return this.camera;
+  }
+
+  colision_positiva(){
+    this.velocidad += 0.01;
+  }
+
+  colision_negativa(){
+    this.velocidad -= 0.005;
   }
   
   

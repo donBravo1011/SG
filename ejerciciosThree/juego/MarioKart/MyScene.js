@@ -28,6 +28,7 @@ class MyScene extends THREE.Scene {
   constructor (myCanvas) { 
     super();
     this.cambioCamara = true;
+    this.pick=false;
     // Lo primero, crear el visualizador, pasándole el lienzo sobre el que realizar los renderizados.
     this.renderer = this.createRenderer(myCanvas);
     
@@ -277,14 +278,128 @@ class MyScene extends THREE.Scene {
             this.spaceBarPressed = false;
         }
     });
-  
+
+    // Listener para la tecla "a"
+    $(window).on("keydown", (event) => {
+      if (event.key === "a") {
+        this.personaje.rotateCar('left');
+      }
+    });
+
+    // Listener para la tecla "d"
+    $(window).on("keydown", (event) => {
+      if (event.key === "d") {
+        this.personaje.rotateCar('right');
+      }
+    });
+
+    $(window).one("click", (event) => {
+      onDocumentMouseDown(event, this.personaje, [this.alas], this.getCamera(), new THREE.Raycaster(), this);
+    });
     
+    detectarColisiones(this.personaje,[this.seta,this.muelle,this.coin],[this.muro,this.boo],this);
     // Este método debe ser llamado cada vez que queramos visualizar la escena de nuevo.
     // Literalmente le decimos al navegador: "La próxima vez que haya que refrescar la pantalla, llama al método que te indico".
     // Si no existiera esta línea,  update()  se ejecutaría solo la primera vez.
     requestAnimationFrame(() => this.update())
   }
 }
+
+var objetosChocadosDuranteAtravieso = [];
+// Función para detectar colisiones del personaje con otros objetos en la escena
+function detectarColisiones(personaje, sceneObjects,sceneObjects2,scene) {
+    
+    // Crear una caja envolvente para el personaje
+    var playerBoundingBox = new THREE.Box3();
+    playerBoundingBox.setFromObject(personaje);
+
+    // Verificar colisiones con otros elementos de la escena
+    for (let object of sceneObjects) {
+        // Verificar si el objeto está en la lista de objetos chocados durante el atravesado
+        if (!objetosChocadosDuranteAtravieso.includes(object)) {
+            var objectBoundingBox = new THREE.Box3();
+            objectBoundingBox.setFromObject(object);
+
+            // Verificar si las cajas envolventes se intersectan
+            if (playerBoundingBox.intersectsBox(objectBoundingBox)) {
+                // Colisión detectada, realizar acciones necesarias
+                // Por ejemplo, detener el movimiento del personaje
+                console.log("hit");
+                scene.personaje.colision_positiva();
+                // Registrar el objeto como un objeto chocado durante el atravesado
+                objetosChocadosDuranteAtravieso.push(object);
+                // Puedes realizar otras acciones aquí, como cambiar la posición del personaje, aplicar efectos visuales, etc.
+            }
+        }
+    }
+
+    for (let object of sceneObjects2) {
+      // Verificar si el objeto está en la lista de objetos chocados durante el atravesado
+      if (!objetosChocadosDuranteAtravieso.includes(object)) {
+          var objectBoundingBox = new THREE.Box3();
+          objectBoundingBox.setFromObject(object);
+
+          // Verificar si las cajas envolventes se intersectan
+          if (playerBoundingBox.intersectsBox(objectBoundingBox)) {
+              // Colisión detectada, realizar acciones necesarias
+              // Por ejemplo, detener el movimiento del personaje
+              console.log("hit2");
+              scene.personaje.colision_negativa();
+              // Registrar el objeto como un objeto chocado durante el atravesado
+              objetosChocadosDuranteAtravieso.push(object);
+              // Puedes realizar otras acciones aquí, como cambiar la posición del personaje, aplicar efectos visuales, etc.
+          }
+      }
+  }
+
+    // Verificar si el personaje ha salido de algún objeto y actualizar la lista de objetos chocados durante el atravesado
+    for (let i = 0; i < objetosChocadosDuranteAtravieso.length; i++) {
+        let objectBoundingBox = new THREE.Box3();
+        objectBoundingBox.setFromObject(objetosChocadosDuranteAtravieso[i]);
+
+        if (!playerBoundingBox.intersectsBox(objectBoundingBox)) {
+            // El personaje ha salido del objeto, eliminarlo de la lista
+            objetosChocadosDuranteAtravieso.splice(i, 1);
+            // Disparar eventos o realizar acciones adicionales si es necesario
+        }
+    }
+}
+
+
+function onDocumentMouseDown(event, personaje, pickableObjects, camera, raycaster, scene) {
+  // Declara la variable mouse y calcula las coordenadas normalizadas del mouse
+  var mouse = new THREE.Vector2();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  // Actualiza el raycaster con la posición del mouse y la cámara
+  raycaster.setFromCamera(mouse, camera);
+
+  // Encuentra las intersecciones con los objetos clicables
+  var pickedObjects = raycaster.intersectObjects(pickableObjects, true);
+
+  // Verifica si se han encontrado intersecciones
+  if (pickedObjects.length > 0) {
+      // Accede al primer objeto intersecado (el más cercano a la cámara)
+      var selectedObject = pickedObjects[0].object;
+      // Accede al punto de intersección en coordenadas del mundo
+      var selectedPoint = pickedObjects[0].point;
+      
+      // Cambia el color del objeto a rojo
+      selectedObject.material.color.set(0xff0000);
+      
+      // Establece un temporizador para restaurar el color original después de 1 segundo
+      setTimeout(function() {
+        selectedObject.material.color.set(0x0000ff); // Restaurar el color original
+      }, 500);
+  }
+}
+
+
+
+
+
+
 
 
 /// La función   main

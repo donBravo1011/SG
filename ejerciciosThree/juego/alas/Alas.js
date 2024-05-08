@@ -64,7 +64,7 @@ class Alas extends THREE.Object3D {
     var origen = { x: -1 };
     var destino = { x: 1 }; // Cambia el valor de destino según el desplazamiento deseado
     var movimiento = new TWEEN.Tween(origen)
-        .to(destino, 1000)
+        .to(destino, 5000)
         .easing(TWEEN.Easing.Linear.None)
         .onUpdate(() => {
             // Actualiza la posición del objeto según el valor interpolado
