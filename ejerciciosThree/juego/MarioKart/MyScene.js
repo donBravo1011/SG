@@ -127,41 +127,42 @@ class MyScene extends THREE.Scene {
     // Que no se nos olvide añadirlo a la escena, que en este caso es  this
     //this.add (ground);
   }
-  
-  createGUI () {
-    // Se crea la interfaz gráfica de usuario
-    var gui = new GUI();
-    
-    // La escena le va a añadir sus propios controles. 
-    // Se definen mediante un objeto de control
-    // En este caso la intensidad de la luz y si se muestran o no los ejes
-    this.guiControls = {
-      // En el contexto de una función   this   alude a la función
-      lightPower : 100.0,  // La potencia de esta fuente de luz se mide en lúmenes
-      ambientIntensity : 0.35,
-      axisOnOff : true
-    }
 
-    // Se crea una sección para los controles de esta clase
-    var folder = gui.addFolder ('Luz y Ejes');
-    
-    // Se le añade un control para la potencia de la luz puntual
-    folder.add (this.guiControls, 'lightPower', 0, 200, 10)
-      .name('Luz puntual : ')
-      .onChange ( (value) => this.setLightPower(value) );
-    
-    // Otro para la intensidad de la luz ambiental
-    folder.add (this.guiControls, 'ambientIntensity', 0, 1, 0.05)
+  createGUI() {
+    var gui = new GUI();
+  
+    this.guiControls = {
+      lightPower: 100.0, // La potencia de esta fuente de luz se mide en lúmenes
+      ambientIntensity: 0.35,
+      sunIntensity: 3, // Control para la intensidad de la luz del sol
+      axisOnOff: true
+    };
+  
+    var folder = gui.addFolder('Luz y Ejes');
+  
+    folder.add(this.guiControls, 'lightPower', 0, 200, 10)
+      .name('Luz puntual: ')
+      .onChange(value => this.setLightPower(value));
+  
+    folder.add(this.guiControls, 'ambientIntensity', 0, 1, 0.05)
       .name('Luz ambiental: ')
-      .onChange ( (value) => this.setAmbientIntensity(value) );
-      
-    // Y otro para mostrar u ocultar los ejes
-    folder.add (this.guiControls, 'axisOnOff')
-      .name ('Mostrar ejes : ')
-      .onChange ( (value) => this.setAxisVisible (value) );
-    
+      .onChange(value => this.setAmbientIntensity(value));
+  
+    folder.add(this.guiControls, 'sunIntensity', 0, 3, 0.1)
+      .name('Intensidad del sol: ')
+      .onChange(value => this.setSunIntensity(value));
+  
+    folder.add(this.guiControls, 'axisOnOff')
+      .name('Mostrar ejes: ')
+      .onChange(value => this.setAxisVisible(value));
+  
     return gui;
   }
+  
+  setSunIntensity(value) {
+    this.sunLight.intensity = value;
+  }
+  
   
   createLights () {
     // Se crea una luz ambiental, evita que se vean complentamente negras las zonas donde no incide de manera directa una fuente de luz
@@ -169,8 +170,18 @@ class MyScene extends THREE.Scene {
     // Se declara como   var   y va a ser una variable local a este método
     //    se hace así puesto que no va a ser accedida desde otros métodos
     this.ambientLight = new THREE.AmbientLight('white', this.guiControls.ambientIntensity);
+    this.ambientLight2 = new THREE.AmbientLight('black', this.guiControls.ambientIntensity);
     // La añadimos a la escena
-    this.add (this.ambientLight);
+    //this.add (this.ambientLight2);
+
+    this.ambientLight3 = new THREE.AmbientLight(0x552200, 0.5); // Luz ambiental con tono rojizo
+    this.add(this.ambientLight3);
+
+    // Crear una luz direccional simulando la luz del sol del desierto
+    this.sunLight = new THREE.DirectionalLight(0xFF4500, 3); // Luz direccional con tono anaranjado rojizo
+    this.sunLight.position.set(5, 10, 5); // Posiciona la luz en la escena
+    this.sunLight.castShadow = true; // Habilita sombras si es necesario
+    this.add(this.sunLight);
     
     // Se crea una luz focal que va a ser la luz principal de la escena
     // La luz focal, además tiene una posición, y un punto de mira
@@ -179,15 +190,19 @@ class MyScene extends THREE.Scene {
     this.pointLight = new THREE.SpotLight( 0xffffff );
     this.pointLight.power = this.guiControls.lightPower;
     this.pointLight.position.set( 2, 3, 1 );
-    this.pointLight2 = new THREE.SpotLight( 0xffffff );
+    this.pointLight2 = new THREE.SpotLight( 0xFF0000 );
     this.pointLight2.power = this.guiControls.lightPower;
-    this.pointLight2.position.set( 2, -3, 1 );
-    this.pointLight3 = new THREE.SpotLight( 0xffffff );
+    this.pointLight2.position.set( 2, 3, 1 );
+    this.pointLight3 = new THREE.SpotLight( 0x00FF00 );
     this.pointLight3.power = this.guiControls.lightPower;
-    this.pointLight3.position.set( -2, 0, 0 );
+    this.pointLight3.position.set( -2, -2, -2 );
+    this.pointLight4 = new THREE.SpotLight( 0x0000FF );
+    this.pointLight4.power = this.guiControls.lightPower;
+    this.pointLight4.position.set( 0, 8.5, 1 );
     this.add (this.pointLight);
-    //this.add (this.pointLight2);
-    //this.add (this.pointLight3);
+    this.add (this.pointLight2);
+    this.add (this.pointLight3);
+    this.add (this.pointLight4);
   }
   
   setLightPower (valor) {
@@ -392,11 +407,13 @@ function onDocumentMouseDown(event, personaje, pickableObjects, camera, raycaste
       
       // Cambia el color del objeto a rojo
       selectedObject.material.color.set(0xff0000);
+      scene.setSunIntensity(0);
       
       // Establece un temporizador para restaurar el color original después de 1 segundo
       setTimeout(function() {
-        selectedObject.material.color.set(0x0000ff); // Restaurar el color original
-      }, 500);
+        selectedObject.material.color.set(0xffffff); // Restaurar el color original
+        scene.setSunIntensity(3);
+      }, 1000);
   }
 }
 
