@@ -1,12 +1,10 @@
 import * as THREE from 'three';
+import * as TWEEN from '../libs/tween.esm.js'
 
 class Articulado extends THREE.Object3D {
-  constructor(gui, titleGui) {
+  constructor() {
     super();
-
-    // Se crea la parte de la interfaz que corresponde a la grapadora
-    this.createGUI(gui, titleGui);
-
+    
     // El material se usa desde varios métodos. Por eso se almacena en un atributo
     this.material = new THREE.MeshStandardMaterial({ color: 0x000000, side: THREE.DoubleSide });
     this.material2 = new THREE.MeshStandardMaterial({ color: 0x9b9b9b, side: THREE.DoubleSide });
@@ -17,6 +15,7 @@ class Articulado extends THREE.Object3D {
 
     // Crear la base del brazo y agregarla al nodo this
     var base = this.createBase();
+    this.animateObject();
     this.add(base);
 
     // Manejar el input del teclado
@@ -106,26 +105,6 @@ class Articulado extends THREE.Object3D {
     return biceps;
   }
 
-  createGUI(gui, titleGui) {
-    // Controles para el movimiento del brazo
-    this.guiControls = {
-      shoulderRotation: 0,
-      elbowRotation: 0
-    };
-
-    // Se crea una sección para los controles de la caja
-    var folder = gui.addFolder(titleGui);
-    // Estas líneas añaden los componentes de la interfaz
-    // Las tres cifras indican un valor mínimo, un máximo y el incremento
-    folder.add(this.guiControls, 'shoulderRotation', -Math.PI / 2, Math.PI / 2, 0.01)
-      .name('Rotación Hombro')
-      .onChange((value) => this.rotateShoulder(value));
-
-    folder.add(this.guiControls, 'elbowRotation', -Math.PI / 2, Math.PI / 2, 0.01)
-      .name('Rotación Codo')
-      .onChange((value) => this.rotateElbow(value));
-  }
-
   rotateShoulder(angle) {
     this.shoulderAngle = angle;
   }
@@ -153,11 +132,39 @@ class Articulado extends THREE.Object3D {
     }
   }
 
+  animateObject() {
+    var origen = { y: -(Math.PI / 2), z: 0 }; // Inicia desde -pi/2 grados en Y y 0 grados en Z
+    var destino = { y: Math.PI / 2, z: Math.PI / 2 }; // Gira hasta pi/2 (90 grados) en Y y Z
+    
+    var movimiento = new TWEEN.Tween(origen)
+        .to(destino, 5000) // Duración de 5000 ms (5 segundos)
+        .easing(TWEEN.Easing.Quadratic.InOut) // Utiliza una función de interpolación suave
+        .onUpdate(() => {
+            // Actualiza la rotación del objeto en los ejes Y y Z
+            this.rotation.y = origen.y;
+            this.rotation.z = origen.z;
+        })
+        .repeat(Infinity) // Repite infinitamente
+        .yoyo(true); // Hace que la animación vuelva en la dirección opuesta
+
+    // Iniciar la animación
+    movimiento.start();
+}
+
+
+
+
+
+
   update() {
     // Actualizar las rotaciones del brazo según los ángulos almacenados
     this.children[0].rotation.z = this.shoulderAngle;
     this.children[0].rotation.y = this.elbowAngle;
+    //TWEEN.update();
   }
+
+
+  
 }
 
 export { Articulado };

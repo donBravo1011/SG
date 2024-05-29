@@ -8,7 +8,7 @@ import { TrackballControls } from '../libs/TrackballControls.js'
 
 // Clases de mi proyecto
 
-import { Circuito } from './Circuito.js'
+import { Personaje } from './Personaje.js'
 
  
 /// La clase fachada del modelo
@@ -49,7 +49,7 @@ class MyScene extends THREE.Scene {
     // Por último creamos el modelo.
     // El modelo puede incluir su parte de la interfaz gráfica de usuario. Le pasamos la referencia a 
     // la gui y el texto bajo el que se agruparán los controles de la interfaz que añada el modelo.
-    this.model = new Circuito(this.gui, "Controles");
+    this.model = new Personaje();
     this.add (this.model);
   }
   
@@ -60,7 +60,7 @@ class MyScene extends THREE.Scene {
     //   Los planos de recorte cercano y lejano
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 10);
     // También se indica dónde se coloca
-    this.camera.position.set (2.5, 0.5,);
+    this.camera.position.set (5, 0.5,);
     // Y hacia dónde mira
     var look = new THREE.Vector3 (0,0,0);
     this.camera.lookAt(look);
@@ -154,10 +154,10 @@ class MyScene extends THREE.Scene {
     this.pointLight2.position.set( 2, -3, 1 );
     this.pointLight3 = new THREE.SpotLight( 0xffffff );
     this.pointLight3.power = this.guiControls.lightPower;
-    this.pointLight3.position.set( -2, 0, 0 );
+    this.pointLight3.position.set( -2, 3, 1 );
     this.add (this.pointLight);
-    //this.add (this.pointLight2);
-    //this.add (this.pointLight3);
+    this.add (this.pointLight2);
+    this.add (this.pointLight3);
   }
   
   setLightPower (valor) {
