@@ -30,6 +30,7 @@ class MyScene extends THREE.Scene {
     super();
     this.cambioCamara = true;
     this.pick=false;
+    this.score = 0; // Variable para el puntaje
     // Lo primero, crear el visualizador, pasándole el lienzo sobre el que realizar los renderizados.
     this.renderer = this.createRenderer(myCanvas);
     
@@ -408,6 +409,8 @@ function onDocumentMouseDown(event, personaje, pickableObjects, camera, raycaste
       // Cambia el color del objeto a rojo
       selectedObject.material.color.set(0xff0000);
       scene.setSunIntensity(0);
+      scene.score += 1; // Aumenta el score
+      document.getElementById('score').innerText = `Score: ${scene.score}`; // Actualiza el texto del score
       
       // Establece un temporizador para restaurar el color original después de 1 segundo
       setTimeout(function() {
