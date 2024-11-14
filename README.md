@@ -24,3 +24,5 @@ En la ultima fase del juego se implemento el movimiento de todos los objetos, as
 
 ## Documentacion
 [Aquí](ejerciciosThree/DocumentacionSG.pdf) se puede encontrar tanto los requisitos que se pedian de la practica, asi como todas las implementaciones de cada uno de los objetos, objeto articulado y jugador.
+Tambien se puede ver el [video](ejerciciosThree/Mario%20Kart%20-%20Google%20Chrome%202024-05-31%2018-15-54.mp4).
+
